@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f77dd68d-6fa2-4fa9-a530-9b391b178512" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="8d3e1927-a3e7-4c60-af8e-9da7867bab1d" >
+		<db:my-sql-connection host="db.icraftsoft.net" port="3306" user="mulesoftuser" password="Cr@fTMule$oFt" database="mulesoftdb" />
+	</db:config>
+	<flow name="product-userFlow" doc:id="894037b3-179d-4da7-bf68-665766d99e80" >
+		<http:listener doc:name="Listener" doc:id="8deadc9d-f958-47ef-b455-07451f336668" config-ref="HTTP_Listener_config" path="/produc-user"/>
+		<db:select doc:name="Select from order db" doc:id="cd6fcee9-2c76-46a9-b279-674bad453ae2" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM mulesoftdb.tb_product;]]></db:sql>
+		</db:select>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="456b609a-04d7-4b3d-a38a-183dd9c8f4c1" >
+			<route >
+				<ee:transform doc:name="Transform Message" doc:id="189fe1c7-4419-4cdf-933b-ee16d3379cf4" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((value, index) -> value.price > 5000)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<file:write doc:name="Write" doc:id="11274c18-c646-413f-8920-b570b27b4074" path="C:\Users\YYYSHF\OneDrive - UMGC\Pictures\certificate\Greterthan 5000\G5000" mode="APPEND" />
+			</route>
+			<route >
+				<ee:transform doc:name="Transform Message" doc:id="39ea9731-0d35-4401-b968-4e9783cf9a45">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((value, index) -> value.price < 5000)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<file:write doc:name="Write" doc:id="6792b43d-21bc-4473-b296-69a25f43dd50" path="C:\Users\YYYSHF\OneDrive - UMGC\Pictures\certificate\L5000" mode="APPEND" />
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="d659da9a-db8a-4b3d-89f2-5c7b1caedd0d" message="write" />
+	</flow>
+</mule>

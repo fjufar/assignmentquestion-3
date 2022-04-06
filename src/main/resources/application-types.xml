@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="order" format="json">
+      <types:shape format="weave" example="examples/order2.json"><![CDATA[%dw 2.0
+
+type order = {|
+  orderid: Number {"typeId": "int"}, 
+  name: String, 
+  uid: Number {"typeId": "int"}, 
+  date: String, 
+  status: String, 
+  amount: Number {"typeId": "int"}
+|} {"example": "{\\\"orderid\\\":10,\\\"name\\\":\\\"toshiba\\\",\\\"uid\\\":123,\\\"date\\\":\\\"2020\\/12\\/01\\\",\\\"status\\\":\\\"pending\\\",\\\"amount\\\":6000}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#39ea9731-0d35-4401-b968-4e9783cf9a45">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="order"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
